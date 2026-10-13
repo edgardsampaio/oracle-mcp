@@ -1,0 +1,212 @@
+openapi: 3.0.3
+info:
+  title: Oracle MCP
+  version: "1.0.0"
+  description: Login, listagem e cadastro de usuários. As demais rotas ficam fora deste documento.
+servers:
+  - url: /
+paths:
+  /api/v1/auth/login:
+    post:
+      operationId: login
+      summary: Entrar
+      description: Emite o access token usado nas rotas de usuário.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Login"
+      responses:
+        "200":
+          description: Tokens emitidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        "401":
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erro"
+        "429":
+          description: Muitas tentativas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erro"
+  /api/v1/users:
+    get:
+      operationId: listUsers
+      summary: Listar usuários
+      description: Exige bearer com users:read ou users:manage.
+      security:
+        - bearer: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Página de usuários
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPage"
+        "401":
+          description: Bearer ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erro"
+        "403":
+          description: Sem permissão ou troca de senha obrigatória
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erro"
+    post:
+      operationId: createUser
+      summary: Cadastrar usuário
+      description: Exige bearer com users:manage. A senha gravada é temporária.
+      security:
+        - bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewUser"
+      responses:
+        "201":
+          description: Usuário criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erro"
+        "401":
+          description: Bearer ausente ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erro"
+        "403":
+          description: Sem permissão ou troca de senha obrigatória
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erro"
+        "409":
+          description: Username já existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Erro"
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    Login:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    Token:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: integer
+        must_change_password:
+          type: boolean
+    NewUser:
+      type: object
+      required: [username, name, email, password, role]
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 64
+          description: Letras, dígitos, ponto, hífen ou sublinhado.
+        name:
+          type: string
+        email:
+          type: string
+          description: E-mail usado na segurança por linha do BI. Não substitui o username de login.
+        password:
+          type: string
+          minLength: 6
+          maxLength: 128
+        role:
+          type: string
+          enum: [admin, analyst, viewer]
+        active:
+          type: boolean
+          default: true
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        active:
+          type: boolean
+        must_change_password:
+          type: boolean
+    UserPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total:
+          type: integer
+    Erro:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
