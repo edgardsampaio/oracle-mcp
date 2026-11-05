@@ -2,3 +2,10 @@
 .env
 *.exe
 /bin/
+
+# Protecoes Corporativas Multi-AI
+*.db
+*.lock
+segredos/
+*.pem
+*.key
