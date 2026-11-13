@@ -5,7 +5,7 @@
 > - **Última Atualização:** 2026-11-10 00:47:35
 > - **Desenvolvedor Responsável:** herick.ribeiro (Host: BROCKWAY-N01)
 > - **Harness / Agente de IA:** Claude Code
-> - **Hub Referência:** Baseline Canônica Multi-IA 2.0 (12 ADRs Mestras Canônicas & 43 Princípios)
+> - **Hub Referência:** Baseline Canônica Multi-IA 2.0 (12 ADRs Mestras Canônicas + ADRs 013/014 complementares aprovadas & 43 Princípios)
 > - **Motivo:** Alinhamento Geral do Ecossistema com a Baseline Multi-IA 2.0
 
 Este repositório segue o padrão corporativo de governança documentado em:
@@ -41,7 +41,7 @@ Qualquer agente de IA deve consultar prioritariamente os dados e documentações
 > - **Última Atualização:** 2026-11-10 00:47:35
 > - **Desenvolvedor / Gestor:** herick.ribeiro (Host: BROCKWAY-N01)
 > - **Harness / Agente de IA:** Google Antigravity
-> - **Hub Referência:** Baseline Canônica Multi-IA 2.0 (12 ADRs Mestras Canônicas & 43 Princípios)
+> - **Hub Referência:** Baseline Canônica Multi-IA 2.0 (12 ADRs Mestras Canônicas + ADRs 013/014 complementares aprovadas & 43 Princípios)
 > - **Motivo:** Alinhamento Geral do Ecossistema com a Baseline Multi-IA 2.0
 
 Este repositório segue rigorosamente a Constituição Corporativa Multi-IA 2.0:
@@ -101,7 +101,7 @@ Este repositório segue rigorosamente a Constituição Corporativa Multi-IA 2.0:
 
 ## Multi-IA 2.0 — Idioma, Segurança e Whitelist
 
-- **Idioma bi-camada:** identificadores de código, scripts, pastas técnicas, tokens analíticos (`dim_`, `fct_`, `_sk`, `_nk`) e metadados técnicos (auditoria, CDC, concorrência) em inglês; objetos de banco do domínio de negócio (schemas, tabelas, colunas, constraints) em pt-BR, `snake_case`, minúsculo, sem acentos, conforme a ADR 013; justificativas, regras de negócio e documentação conceitual ficam em Português do Brasil. Para objetos de banco, a ADR 013 prevalece sobre as ADRs 002, 004 e 005.
+- **Idioma bi-camada:** identificadores de software e infraestrutura em inglês; objetos físicos de dados seguem a ADR 013; conteúdo conceitual e regras de negócio em pt-BR.
 - **Coexistência:** preserve arquivos e diretórios nativos de outras ferramentas, incluindo CLAUDE.md, GEMINI.md, .claude/, .gemini/ e .antigravity/; AGENTS.md é a referência comum.
 - **Acesso parametrizado:** acesse somente raízes canônicas do projeto ou diretórios autorizados por MULTI_IA_WHITELIST_ROOTS. Caminhos em unidades secundárias e compartilhamentos de rede devem ser parametrizados por ambiente, sem caminhos absolutos fixos no código.
 - **Zero-Data:** nunca versione bancos (*.db, *.sqlite), arquivos .env, senhas, tokens ou dados pessoais/de clientes. Mantenha-os ignorados no Git e use .env.example apenas sem valores reais.
@@ -121,3 +121,39 @@ O escopo é multidisciplinar; aplique os pilares pertinentes ao projeto sem intr
 ## Governance artifact filenames
 
 Use English basenames for canonical Multi-IA governance files and technical paths (for example `docs/STATE.md`, `docs/SESSIONS.md`, `docs/HISTORY.md`, `docs/REQUIREMENTS.md`, and `docs/decisions/`). Keep document contents in pt-BR where appropriate. Do not rename business-domain artifacts solely because their names are in Portuguese.
+
+<!-- ADR-013-014: BEGIN -->
+## ADR 013 e ADR 014 — Nomenclatura de Dados e Artefatos de Governança
+
+> Esta seção registra as regras aprovadas e prevalece sobre exemplos conflitantes anteriores deste AGENTS.md.
+
+### ADR 013 — Objetos de banco e metadados
+
+- Objetos físicos de banco orientados ao domínio — schemas, tabelas, views, colunas, constraints, índices, sequences e procedures — usam termos em Português do Brasil, snake_case, minúsculos, sem acentos e no singular.
+- Tokens analíticos reservados em inglês: stg_ (staging), dim_ (dimensão), fct_ (fato), brg_ (ponte), agg_ (agregação materializada) e snp_ (snapshot). O restante do nome identifica o domínio em português; exemplos: dim_cliente, fct_item_venda, brg_vendedor_regiao, agg_venda_mensal.
+- Chaves: _sk identifica chave substituta dimensional; _nk, chave natural tratada/composta; _id, identificador transacional de origem. _nk é opcional quando coincide exatamente com _id e obrigatória para chaves compostas ou integração de múltiplas origens.
+- A lista de metadados técnicos permitidos em inglês é restrita a: created_at, created_by, updated_at, updated_by, deleted_at, deleted_by; is_active, is_deleted ou is_hard_deleted, is_archived; loaded_at, batch_id ou run_id, source_system, cdc_operation, cdc_timestamp, row_hash; tenant_id, version, correlation_id.
+- Em SCD Tipo 2, os campos de vigência de negócio são inicio_vigencia, fim_vigencia e registro_atual. Não usar is_current para esse conceito.
+- O nome do arquivo do modelo dbt coincide com o objeto físico materializado. alias fica restrito aos usos definidos na ADR 013.
+- A ADR 013 prevalece sobre as ADRs 002, 004 e 005 nos pontos de nomenclatura de objetos de banco, chaves, metadados e modelos analíticos.
+
+### ADR 014 — Arquivos canônicos de governança
+
+- Use nomes em inglês para artefatos canônicos Multi-IA, incluindo AGENTS.md, docs/STATE.md, docs/SESSIONS.md, docs/HISTORY.md, docs/REQUIREMENTS.md, docs/decisions/ e docs/sessions/; o conteúdo pode permanecer em pt-BR.
+- Preserve nomes de arquivos de domínio em português e instruções/configurações nativas dos harnesses, incluindo CLAUDE.md, GEMINI.md, .claude/, .gemini/ e .antigravity/. Não os renomeie por esta ADR.
+
+<!-- ADR-013-014: END -->
+
+<!-- ADR-015: BEGIN -->
+## ADR 015 — Documentação, Experiência e Gestão do Conhecimento
+
+> Regras aprovadas em 13/11/2026 (parecer do Claude Code com condições). Texto completo: `docs/decisions/015-project-documentation-and-knowledge-management.md` no hub `multi-ia`.
+
+- **Seis áreas por público:** registro do projeto, produto e jornada ágil, guia do usuário, documentação pública, landing page de conversão e aprendizado interno aplicado. Área inaplicável registra justificativa datada no `docs/STATE.md`.
+- **Lições aplicadas:** todo recurso técnico efetivamente aplicado no projeto (ex.: enviar e-mail com Python, expor uma API em Go, medida DAX com determinada função no Power BI) tem lição ou capítulo reproduzível, com exercício e verificação. O inventário de cobertura parte do código, manifests e testes; cobre só o que foi aplicado. Adoção incremental, com lacunas registradas no `docs/STATE.md`.
+- **Distribuição:** três destinos (internet, pasta do cliente, acervo do time), cada um gerado de uma lista explícita de páginas autorizadas. Publicação externa exige autorização expressa do Herick a cada publicação (Tier 3, ADR 009).
+- **Código e dados:** lições que citam código ficam no acervo do projeto, nunca em base compartilhada (ADR 007). Guias, capturas e demonstrações usam só dados sintéticos.
+- **Sem rotina local:** geração de documentação e portais sob demanda ou em CI, nunca em tarefa agendada na máquina (princípio 26). Demos públicas rodam em infraestrutura conteinerizada.
+- **Interface:** cada harness registra os skills ou referências de design aplicados, sem alterar a configuração nativa de outro. Demonstração interativa com dados sintéticos, ou justificativa datada.
+<!-- ADR-015: END -->
+
